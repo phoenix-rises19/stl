@@ -1,0 +1,6 @@
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/main.dir
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/vectorTest.dir
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/listTest.dir
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/test.dir
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/vaibhav/CLionProjects/stl/cmake-build-debug/CMakeFiles/rebuild_cache.dir
