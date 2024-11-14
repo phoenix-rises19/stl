@@ -121,12 +121,15 @@ namespace vai {
         Node* find(Node* node, const KeyType& k) {
             if (!node)
                 return nullptr;
-            if (k < node->key_) {
-                return find(node->left_, k);
-            } else if (k > node->key_) {
-                return find(node->right_, k);
-            } else {
-                return node;
+            Node* current = node;
+            while(current) {
+                if (k < node->key_) {
+                    current=current->left_;
+                } else if (k > node->key_) {
+                    current=current->right_;
+                } else {
+                    return node;
+                }
             }
         }
 
@@ -193,8 +196,7 @@ namespace vai {
         public:
 
             //TODO copy assign operator for iterator
-            // TODO erase both via key and iterator  
-            // TODO find and insert do via while loop.
+            // TODO erase both via key and iterator
             Iterator():
                 current(nullptr) {}
 
