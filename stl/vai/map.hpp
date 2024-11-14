@@ -151,7 +151,9 @@ namespace vai {
             ++size_;
             root_ = insert(root_, k, v);
         }
-
+        bool empty() {
+            return size_ == 0;
+        }
         void erase(const KeyType& k) {
             root_ = erase(root_, k);
         }
