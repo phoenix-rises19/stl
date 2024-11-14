@@ -1,15 +1,11 @@
-//
-// Created by vaibhav on 11/8/24.
-//
+#pragma once
 
-#ifndef MAP_HPP
-#define MAP_HPP
+#include <stack>
 #include <stdexcept>
-#include<stack>
 
 namespace vai {
-    template <typename KeyType, typename ValueType>
 
+    template <typename KeyType, typename ValueType>
     class Map {
     private:
         struct Node {
@@ -32,7 +28,6 @@ namespace vai {
         Node* root_;
         size_t size_;
 
-
         int getHeight(Node* node) {
             if (node == nullptr)
                 return 0;
@@ -54,7 +49,7 @@ namespace vai {
             node->height_    = 1 + std::max(getHeight(node->left_), getHeight(node->right_));
 
             newRoot->parent_ = node->parent_;
-            node->parent_ = newRoot;
+            node->parent_    = newRoot;
             if (subTree != nullptr) {
                 subTree->parent_ = node;
             }
@@ -73,7 +68,7 @@ namespace vai {
             node->height_    = 1 + std::max(getHeight(node->left_), getHeight(node->right_));
 
             newRoot->parent_ = node->parent_;
-            node->parent_ = newRoot;
+            node->parent_    = newRoot;
             if (subTree != nullptr) {
                 subTree->parent_ = node;
             }
@@ -81,16 +76,16 @@ namespace vai {
             return newRoot;
         }
 
-        Node* insert(Node* node,  KeyType k,  ValueType v, Node* parent=nullptr) {
+        Node* insert(Node* node, KeyType k, ValueType v, Node* parent = nullptr) {
             if (node == nullptr) {
-                Node* newNode = new Node(k,v);
-                newNode->parent_= parent;
+                Node* newNode    = new Node(k, v);
+                newNode->parent_ = parent;
                 return newNode;
             }
             if (node->key_ > k) {
-                node->left_ = insert(node->left_, k, v,node);
+                node->left_ = insert(node->left_, k, v, node);
             } else if (node->key_ < k) {
-                node->right_ = insert(node->right_, k, v,node);
+                node->right_ = insert(node->right_, k, v, node);
             } else {
                 node->value_ = v;
                 return node;
@@ -138,28 +133,32 @@ namespace vai {
     public:
         Map():
             root_(nullptr),
-            size_(0){}
+            size_(0) {}
 
         ~Map() {
-
+            // TODO: destroy nodes
         }
 
         Map(KeyType& k, ValueType& v):
             root_(new Node(k, v)) {}
 
-        void insert( KeyType k,  ValueType v) {
+        void insert(KeyType k, ValueType v) {
             ++size_;
             root_ = insert(root_, k, v);
         }
+
         bool empty() {
             return size_ == 0;
         }
+
         void erase(const KeyType& k) {
             root_ = erase(root_, k);
         }
+
         size_t size() {
             return size_;
         }
+
         ValueType& at(const KeyType& k) {
             Node* p = find(root_, k);
             if (!p) {
@@ -177,7 +176,8 @@ namespace vai {
         }
 
         bool isBalanced(Node* node) {
-            if (!node) return true;
+            if (!node)
+                return true;
             int balance = getBalance(node);
             return abs(balance) <= 1 and isBalanced(node->left_) and isBalanced(node->right_);
         }
@@ -190,8 +190,11 @@ namespace vai {
         private:
             Node* current;
 
-
         public:
+
+            //TODO copy assign operator for iterator
+            // TODO erase both via key and iterator  
+            // TODO find and insert do via while loop.
             Iterator():
                 current(nullptr) {}
 
@@ -214,26 +217,25 @@ namespace vai {
                     }
                 } else {
 
-                    Node* parent=current->parent_;
+                    Node* parent = current->parent_;
                     while (parent and current == parent->right_) {
-                        current=parent;
-                        parent=parent->parent_;
+                        current = parent;
+                        parent  = parent->parent_;
                     }
-                    current=parent;
+                    current = parent;
                 }
                 return *this;
             }
 
-
-            auto* operator ->() {
-                return new std::pair<const KeyType, ValueType> (current->key_,current->value_);
+            auto* operator->() {
+                return new std::pair<const KeyType, ValueType>(current->key_, current->value_);
             }
         };
 
         Iterator begin() {
             Node* current = root_;
-            while(current->left_) {
-                current=current->left_;
+            while (current->left_) {
+                current = current->left_;
             }
             return Iterator(current);
         }
@@ -255,5 +257,3 @@ namespace vai {
         }
     };
 }
-
-#endif // MAP_HPP
