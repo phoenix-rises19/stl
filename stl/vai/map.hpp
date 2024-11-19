@@ -74,6 +74,8 @@ namespace vai {
             auto* operator->() {
                 return new std::pair<const KeyType, ValueType>(current->key_, current->value_);
             }
+
+
         };
 
     private:
@@ -113,10 +115,9 @@ namespace vai {
                 root_=newRoot;
             }
 
-
-
-            newRoot->height_ = 1 + std::max(getHeight(newRoot->left_), getHeight(newRoot->right_));
             node->height_    = 1 + std::max(getHeight(node->left_), getHeight(node->right_));
+            newRoot->height_ = 1 + std::max(getHeight(newRoot->left_), getHeight(newRoot->right_));
+
         }
 
         void leftRotate(Node* node) {
@@ -219,6 +220,123 @@ namespace vai {
             return current;
         }
 
+        Iterator erase(Node* root_, const KeyType& key) {
+            Node* current = root_;
+            Node* parent = nullptr;
+            Node* nodeToDelete = nullptr;
+
+            while (current) {
+                if (key < current->key_) {
+                    parent = current;
+                    current = current->left_;
+                } else if (key > current->key_) {
+                    parent = current;
+                    current = current->right_;
+                } else {
+                    nodeToDelete = current;
+                    break;
+                }
+            }
+
+            if (nodeToDelete==nullptr) {
+                return Iterator();
+            }
+
+
+            Iterator next = Iterator(nodeToDelete);
+            ++next;
+
+            if (nodeToDelete->left_==nullptr and nodeToDelete->right_==nullptr) {       // isLeaf
+                if (parent==nullptr) {
+                    delete nodeToDelete;
+                    return Iterator(nullptr);
+                }
+
+                if (parent->left_ == nodeToDelete) {
+                    parent->left_ = nullptr;
+                } else {
+                    parent->right_ = nullptr;
+                }
+                delete nodeToDelete;
+            }
+            else if (nodeToDelete->left_==nullptr || nodeToDelete->right_==nullptr) {       //oneChild
+                Node* child = nodeToDelete->left_ ? nodeToDelete->left_ : nodeToDelete->right_;
+
+                if (!parent) {
+                    root_ = child;
+                } else if (parent->left_ == nodeToDelete) {
+                    parent->left_ = child;
+                } else {
+                    parent->right_ = child;
+                }
+                child->parent_ = parent;
+                delete nodeToDelete;
+
+            }
+            else {          //twoChildren
+                Node* successor = minValueNode(nodeToDelete->right_);
+                nodeToDelete->key_ = successor->key_;
+                nodeToDelete->value_ = successor->value_;
+
+                parent = nodeToDelete;
+                current = nodeToDelete->right_;
+
+                while (current) {
+                    if (current == successor) {
+                        if (current->right_) {
+                            if (parent->left_ == current) {
+                                parent->left_ = current->right_;
+                            } else {
+                                parent->right_ = current->right_;
+                            }
+                            current->right_->parent_ = parent;
+                        }
+                        else {
+                            if (parent->left_ == current) {
+                                parent->left_ = nullptr;
+                            } else {
+                                parent->right_ = nullptr;
+                            }
+                        }
+                        delete current;
+                        break;
+                    }
+                    parent = current;
+                    current = current->left_;
+                }
+            }
+
+            Node* node = nodeToDelete ? nodeToDelete->parent_ : parent;
+            while (node) {
+                node->height_ = 1 + std::max(getHeight(node->left_), getHeight(node->right_));
+                int balance = getBalance(node);
+
+                if (balance > 1) {
+                    if (getBalance(node->left_) >= 0) {
+                        rightRotate(node);
+                    } else {
+                        leftRotate(node->left_);
+                        rightRotate(node);
+                    }
+                } else if (balance < -1) {
+                    if (getBalance(node->right_) <= 0) {
+                        leftRotate(node);
+                    } else {
+                        rightRotate(node->right_);
+                        leftRotate(node);
+                    }
+                }
+
+
+                if (!node->parent_) {
+                    root_ = node;
+                }
+                node = node->parent_;
+            }
+
+            return next;
+    }
+
         Node* find(Node* node, const KeyType& k) {
             if (!node)
                 return nullptr;
@@ -234,15 +352,30 @@ namespace vai {
             }
         }
 
+        void clear(Node* node) {
+            if (node==nullptr) {
+                return;
+            }
+            clear(node->left_);
+            clear(node->right_);
+            delete node;
+        }
+
     public:
         Map():
             root_(nullptr),
             size_(0) {}
 
         ~Map() {
-            // TODO: destroy nodes
+            clear(root_);
+        }
+        KeyType getRoot() {
+            return root_->key_;
         }
 
+        size_t treeHeight() {
+            return root_->height_;
+        }
         Map(KeyType& k, ValueType& v):
             root_(new Node(k, v)) {}
 
@@ -255,8 +388,8 @@ namespace vai {
             return size_ == 0;
         }
 
-        void erase(const KeyType& k) {
-            root_ = erase(root_, k);
+        Iterator erase(const KeyType& key) {
+            return erase(root_, key);
         }
 
         size_t size() {
@@ -289,6 +422,7 @@ namespace vai {
         bool isBalance() {
             return isBalanced(root_);
         }
+
 
 
 
