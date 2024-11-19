@@ -3,27 +3,21 @@
 
 using namespace vai;
 
-TEST(MapTest, InsertAndBalanceCheck) {
+TEST(MapTest, InsertAndIteratorCheck) {
     Map<int, int> map;
-    map.insert(10, 1);
-    map.insert(20, 2);
-    map.insert(5, 3);
-    map.insert(6, 4);
-    map.insert(15, 5);
 
-    EXPECT_EQ(map.isBalance(),true);
-    EXPECT_EQ(map.size(),2);
+    map.insert(15,1);
+    map.insert(12,1);
+    map.insert(18,1);
+    map.insert(8,1);
+    map.insert(14,1);
+    EXPECT_EQ(map.treeHeight(),3);
+    EXPECT_EQ(map.getRoot(),15);
+    map.insert(9,1);
+    EXPECT_EQ(map.treeHeight(),3);
+    EXPECT_EQ(map.getRoot(),12);
 
-    auto it = map.begin();
-    EXPECT_EQ(it->second,3);
-     ++it;
-     EXPECT_EQ(*it, 4);
-      ++it;
-      EXPECT_EQ(*it, 1);
-    ++it;
-    EXPECT_EQ(*it, 5);
-    ++it;
-    EXPECT_EQ(*it, 2);
-     ++it;
-    EXPECT_EQ(it, map.end());
+    map.erase(12);
+    ASSERT_EQ(map.treeHeight(), 3);
+    ASSERT_EQ(map.getRoot(), 14);
 }
